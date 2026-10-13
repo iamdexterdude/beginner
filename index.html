@@ -1,0 +1,1304 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tarjima Poyga</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --c:16px;
+  --bg:#E8F0EF; --paper:#F7FBFA; --ink:#0E1A3F; --mute:#51608A;
+  --cobalt:#1C3FAA; --turq:#12A39B; --saff:#F0B429; --pom:#C73A57;
+  --on-cobalt:#F7FBFA; --line:#0E1A3F; --focus:#F0B429; --shade:rgba(14,26,63,.9);
+  --f-display:'Bricolage Grotesque','Trebuchet MS',system-ui,sans-serif;
+  --f-body:'Instrument Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+:root[data-theme="dark"]{
+  --bg:#0A1230; --paper:#121C45; --ink:#EAF1F6; --mute:#9AA8D2;
+  --cobalt:#3F63E0; --turq:#2BC9BF; --saff:#F6C453; --pom:#F0607C;
+  --on-cobalt:#F7FBFA; --line:#EAF1F6; --focus:#F6C453; --shade:rgba(0,0,0,.6);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0A1230; --paper:#121C45; --ink:#EAF1F6; --mute:#9AA8D2;
+    --cobalt:#3F63E0; --turq:#2BC9BF; --saff:#F6C453; --pom:#F0607C;
+    --line:#EAF1F6; --focus:#F6C453; --shade:rgba(0,0,0,.6);
+  }
+}
+*{box-sizing:border-box;margin:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.5;min-height:100vh;
+  background-image:
+    linear-gradient(45deg,transparent 48%,color-mix(in srgb,var(--ink) 7%,transparent) 49% 51%,transparent 52%),
+    linear-gradient(-45deg,transparent 48%,color-mix(in srgb,var(--ink) 7%,transparent) 49% 51%,transparent 52%);
+  background-size:56px 56px;
+}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+h1,h2,h3{font-family:var(--f-display);line-height:1.02;letter-spacing:-.02em}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px 56px}
+
+/* chamfered tiles: opposite corners cut. Border drawn with a second, inset layer. */
+.tile{
+  position:relative;background:var(--ink);padding:3px;
+  clip-path:polygon(var(--c) 0,100% 0,100% calc(100% - var(--c)),calc(100% - var(--c)) 100%,0 100%,0 var(--c));
+}
+.tile>.in{
+  background:var(--paper);height:100%;padding:22px;
+  clip-path:polygon(calc(var(--c) - 2px) 0,100% 0,100% calc(100% - var(--c) + 2px),calc(100% - var(--c) + 2px) 100%,0 100%,0 calc(var(--c) - 2px));
+}
+.tile.flat{background:transparent;padding:0}
+.tile.flat>.in{clip-path:none}
+button.tile:focus-visible::after,a.tile:focus-visible::after{
+  content:"";position:absolute;inset:7px;border:3px dashed var(--focus);pointer-events:none;
+}
+button.tile{display:block;text-align:left;width:100%}
+button.tile:hover>.in{background:color-mix(in srgb,var(--paper) 86%,var(--saff))}
+button.tile:active{transform:translateY(2px)}
+.tile.cobalt>.in{background:var(--cobalt);color:var(--on-cobalt)}
+button.tile.cobalt:hover>.in{background:color-mix(in srgb,var(--cobalt) 88%,#fff)}
+.tile.turq>.in{background:var(--turq);color:#06201f}
+.tile.saff>.in{background:var(--saff);color:#2a1c00}
+.tile.pom>.in{background:var(--pom);color:#fff}
+.btn{
+  display:inline-block;position:relative;padding:3px;background:var(--ink);font-weight:600;
+  clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px);
+}
+.btn>span{display:block;padding:11px 22px;background:var(--saff);color:#2a1c00;
+  clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)}
+.btn.alt>span{background:var(--paper);color:var(--ink)}
+.btn.big>span{padding:16px 34px;font-size:1.15rem}
+.btn:hover>span{filter:brightness(1.07)}
+.btn:active{transform:translateY(2px)}
+.btn:focus-visible>span{background:var(--focus);outline:3px dashed var(--ink);outline-offset:-8px}
+.btn[disabled]{opacity:.5;pointer-events:none}
+:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+button.tile:focus-visible,.btn:focus-visible{outline:none}
+
+/* top bar */
+.bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 0}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-weight:800;font-size:1.35rem;letter-spacing:-.02em}
+.brand i{display:block;width:26px;height:26px;background:var(--cobalt);transform:rotate(45deg);border:3px solid var(--ink);position:relative}
+.brand i::after{content:"";position:absolute;inset:4px;background:var(--saff)}
+.bar nav{display:flex;gap:8px;flex-wrap:wrap}
+.chip{padding:7px 14px;border:2px solid var(--ink);font-weight:600;font-size:.95rem;background:var(--paper)}
+.chip:hover{background:var(--saff);color:#2a1c00}
+
+/* home */
+.home{display:grid;grid-template-columns:7fr 5fr;gap:34px;align-items:start;padding-top:10px}
+.hero h1{font-size:clamp(2.6rem,6.4vw,5rem);font-weight:800;max-width:11ch}
+.lede{margin:22px 0 28px;max-width:46ch;font-size:1.12rem;color:var(--mute)}
+.demo .in{padding:26px}
+.demo .uz{font-family:var(--f-display);font-size:1.5rem;font-weight:700;color:var(--cobalt)}
+:root[data-theme="dark"] .demo .uz{color:var(--turq)}
+.demo .en{margin-top:14px;min-height:3.2em;font-size:1.3rem;border-top:3px dashed color-mix(in srgb,var(--ink) 30%,transparent);padding-top:14px}
+.caret{display:inline-block;width:2px;height:1.1em;background:var(--ink);vertical-align:-.15em;animation:blink 1s steps(1) infinite}
+.verdict{margin-top:6px;font-weight:600;color:var(--turq);opacity:0;transition:opacity .3s}
+.verdict.on{opacity:1}
+.modes{display:grid;gap:22px}
+.mode .in{padding:26px 26px 24px}
+.mode h2{font-size:2rem;font-weight:800}
+.mode p{margin-top:8px;max-width:30ch;opacity:.92}
+.mode.board{margin-right:28px}
+.mode.arena{margin-left:28px}
+
+/* shared screen heads */
+.head{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:14px;margin:12px 0 24px}
+.head h2{font-size:clamp(2rem,4.6vw,3.2rem);font-weight:800}
+.sub{color:var(--mute);max-width:52ch}
+.levels{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:22px}
+.lv .in{padding:14px 18px}
+.lv b{font-family:var(--f-display);font-size:1.35rem}
+.lv small{display:block;opacity:.85;line-height:1.3}
+.lv.on .in{outline:0;box-shadow:none;background:var(--ink);color:var(--paper)}
+.lv.on:hover>.in{background:var(--ink)}
+
+/* board */
+.stage .in{padding:clamp(22px,4vw,44px)}
+.pips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:22px}
+.pip{width:26px;height:26px;border:3px solid var(--ink);background:var(--paper);transform:rotate(45deg) scale(.72);font-size:0;transition:.15s}
+.pip.seen{background:var(--turq)}
+.pip.cur{background:var(--saff);transform:rotate(45deg) scale(.95)}
+.pip.btn-pip{cursor:pointer}
+.kind{display:inline-block;padding:3px 12px;border:2px solid var(--ink);font-weight:600;font-size:.95rem;margin-bottom:14px}
+.kind.p{background:var(--turq);color:#06201f}.kind.n{background:var(--pom);color:#fff}.kind.i{background:var(--saff);color:#2a1c00}
+.big-uz{font-family:var(--f-display);font-weight:800;font-size:clamp(1.9rem,5vw,3.6rem);line-height:1.08;max-width:22ch}
+.answers{margin-top:26px;display:grid;gap:10px}
+.ans{padding:12px 16px;background:color-mix(in srgb,var(--turq) 22%,var(--paper));border-left:8px solid var(--turq);font-size:1.25rem}
+.ans.alt{background:var(--paper);border-left-color:var(--mute);font-size:1.05rem;color:var(--mute)}
+.tip{margin-top:6px;padding:12px 16px;background:color-mix(in srgb,var(--saff) 30%,var(--paper));border-left:8px solid var(--saff);font-size:.98rem}
+.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px;align-items:center}
+.try{margin-top:26px;display:flex;gap:10px;flex-wrap:wrap}
+.field{flex:1 1 260px;font:inherit;padding:12px 14px;background:var(--paper);color:var(--ink);border:3px solid var(--ink);border-radius:0}
+.field:focus{outline:none;background:color-mix(in srgb,var(--saff) 18%,var(--paper));box-shadow:6px 6px 0 var(--saff)}
+.tryres{width:100%;font-weight:600}
+.tryres.ok{color:var(--turq)}.tryres.no{color:var(--pom)}.tryres.rev{color:var(--cobalt)}
+:root[data-theme="dark"] .tryres.rev{color:var(--saff)}
+
+/* lobby */
+.lobby{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+.rules{display:grid;gap:12px}
+.rule{display:flex;align-items:center;gap:14px}
+.rule .tag{width:12px;align-self:stretch}
+.rule b{font-family:var(--f-display);font-size:1.15rem}
+.rule input{width:64px;font:inherit;padding:6px;border:3px solid var(--ink);background:var(--paper);color:var(--ink);text-align:center}
+.lblock label{display:block;font-weight:600;margin-bottom:8px}
+.lblock .field{width:100%;font-size:1.4rem;font-family:var(--f-display);font-weight:700}
+.hint{color:var(--mute);font-size:.95rem;margin-top:10px}
+
+/* play */
+.play{display:grid;grid-template-columns:auto 1fr;gap:clamp(18px,4vw,48px);align-items:center}
+.fuse{width:clamp(130px,22vw,220px);position:relative}
+.fuse svg{display:block;width:100%;height:auto;overflow:visible}
+.fuse .back{fill:var(--paper);stroke:color-mix(in srgb,var(--ink) 22%,transparent);stroke-width:9}
+.fuse .run{fill:none;stroke-width:9;stroke-linecap:butt;transition:stroke .2s}
+.fuse .num{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--f-display);font-weight:800;font-size:clamp(2.2rem,6vw,4rem)}
+.fuse.late .num{color:var(--pom);animation:shake .4s infinite}
+.q-meta{display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+.q-uz{font-family:var(--f-display);font-weight:800;font-size:clamp(1.7rem,4.4vw,3.1rem);line-height:1.1}
+.play form{margin-top:24px;display:flex;gap:10px;flex-wrap:wrap}
+.play .field{font-size:1.25rem}
+.pp{display:flex;gap:6px;margin:0 0 18px}
+.pp i{width:20px;height:20px;border:3px solid var(--ink);transform:rotate(45deg) scale(.7);background:var(--paper)}
+.pp i.done{background:var(--ink)}
+.pp i.cur{transform:rotate(45deg) scale(.98);background:var(--saff)}
+
+/* results */
+.score{display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:center}
+.score .num{font-family:var(--f-display);font-weight:800;font-size:clamp(4.5rem,13vw,8rem);line-height:.9;letter-spacing:-.05em}
+.score .num small{font-size:.38em;opacity:.7;letter-spacing:0}
+.split{display:grid;grid-template-columns:5fr 7fr;gap:24px;margin-top:24px;align-items:start}
+.weak{display:grid;gap:12px}
+.weak li{list-style:none;padding:12px 14px;border-left:8px solid var(--pom);background:var(--paper)}
+.weak b{font-family:var(--f-display);font-size:1.1rem}
+.weak small{display:block;color:var(--mute);margin-top:2px}
+.weak em{display:block;margin-top:4px;font-style:normal;font-size:.95rem;color:var(--cobalt)}
+:root[data-theme="dark"] .weak em{color:var(--turq)}
+.review{display:grid;gap:10px}
+.rv{padding:12px 14px;background:var(--paper);border-left:8px solid var(--mute)}
+.rv.ok{border-left-color:var(--turq)}.rv.rev{border-left-color:var(--saff)}.rv.no{border-left-color:var(--pom)}
+.rv .u{font-weight:600}
+.rv .y{margin-top:2px}
+.rv .m{margin-top:2px;color:var(--mute);font-size:.95rem}
+.rv .row{display:flex;gap:10px;justify-content:space-between;align-items:center;margin-top:8px;flex-wrap:wrap}
+.status{font-weight:600;font-size:.92rem}
+.mini{padding:4px 10px;border:2px solid var(--ink);font-size:.88rem;font-weight:600;background:var(--paper)}
+.mini:hover{background:var(--saff);color:#2a1c00}
+.bytype{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.bytype span{color:var(--ink);padding:4px 12px;border:2px solid var(--ink);background:var(--paper);font-weight:600}
+
+/* leaderboard */
+.board-list{display:grid;gap:12px;counter-reset:r}
+.lbrow{display:grid;grid-template-columns:64px 1fr auto auto;gap:16px;align-items:center}
+.lbrow .rk{font-family:var(--f-display);font-weight:800;font-size:2rem;text-align:center}
+.lbrow .nm{font-family:var(--f-display);font-weight:700;font-size:1.4rem;overflow-wrap:anywhere}
+.lbrow .sc{font-family:var(--f-display);font-weight:800;font-size:2rem}
+.lbrow .tm{color:inherit;opacity:.8;min-width:5ch;text-align:right}
+.lbrow .in{padding:14px 20px}
+.empty{padding:34px;text-align:center}
+
+@keyframes blink{50%{opacity:0}}
+@keyframes shake{25%{transform:translateX(-2px)}75%{transform:translateX(2px)}}
+@media (max-width:860px){
+  .home,.lobby,.split{grid-template-columns:1fr}
+  .mode.board,.mode.arena{margin:0}
+  .play{grid-template-columns:1fr;justify-items:center;text-align:center}
+  .play form{justify-content:center}.q-meta,.pp{justify-content:center}
+  .score{grid-template-columns:1fr}
+  .levels{grid-template-columns:1fr}
+  .lbrow{grid-template-columns:44px 1fr auto}.lbrow .tm{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="bar">
+    <button class="brand" data-act="home" aria-label="Tarjima Poyga home"><i></i>Tarjima Poyga</button>
+    <nav>
+      <button class="chip" data-act="go-board">Board</button>
+      <button class="chip" data-act="go-lobby">Arena</button>
+      <button class="chip" data-act="go-lb">Leaderboard</button>
+      <button class="chip" data-act="theme" aria-label="Switch light or dark theme">Theme</button>
+    </nav>
+  </header>
+  <main id="app" aria-live="polite"></main>
+</div>
+
+<script>
+/* ======================================================================
+   SENTENCE BANK
+   Each row: [Uzbek sentence, English pattern, tags]
+   Pattern syntax:  (a|b|c) = one of these      [a|b] = optional, one of these
+   The first option is the model answer; every other combination is accepted.
+   ====================================================================== */
+const SIS = "(older |elder |big |)sister";
+const BRO = "(older |elder |big |)brother";
+const DAD = "(father|dad)";
+const MOM = "(mother|mom|mum)";
+const WEEKEND = "(at weekends|on weekends|at the weekend|on the weekend|on Saturdays and Sundays)";
+const T = (rest, time) => `(${rest} ${time}|${time} ${rest})`;
+const A = (sub, adv, rest) => `(${sub} ${adv} ${rest}|${adv} ${sub} ${rest}|${sub} ${rest} ${adv})`;
+
+const LEVELS = {
+  easy: { key: 'easy', name: 'Easy', uz: 'Oson', stars: 1, n: 4,
+    blurb: 'Short sentences with I, you, we, they, he and she.' },
+  avg: { key: 'avg', name: 'Average', uz: "O'rta", stars: 2, n: 3,
+    blurb: 'Time words like every morning and on Sundays, plus where and what questions.' },
+  hard: { key: 'hard', name: 'Hard', uz: 'Qiyin', stars: 3, n: 3,
+    blurb: 'Frequency words, longer sentences, question words and am, is, are.' }
+};
+
+const TIPS = {
+  pb: 'With I, you, we, they (and plural nouns) the verb keeps its base form: we go, they play.',
+  p3: 'With he, she, it (and one person or thing) add -s or -es to the verb: she works, he watches, the school starts.',
+  nb: 'Negative with I, you, we, they: subject + do not (don’t) + base verb.',
+  n3: 'Negative with he, she, it: subject + does not (doesn’t) + base verb. The -s moves to does, so the verb has no -s.',
+  qb: 'Question with I, you, we, they: Do + subject + base verb?',
+  q3: 'Question with he, she, it: Does + subject + base verb? The -s goes on does, not on the verb.',
+  wh: 'Question word + do/does + subject + base verb: Where does he work? How often do you go?',
+  who: 'When who is the subject, use the he/she form with no do/does: Who speaks English? Who lives here?',
+  be: 'With am, is, are you do not need do/does: I am a student. She is not at home. Are they your friends?',
+  have: 'have becomes has with he, she, it: I have two brothers, she has two brothers.',
+  adv: 'Frequency words (always, usually, often, sometimes, never) go before the main verb: she usually walks.',
+  time: 'Time phrases go at the end of the sentence (every morning, on Sundays, after work) or at the very start.'
+};
+
+const BANK = {
+  easy: {
+    p: [
+      ["Men choy ichaman.", "I (drink|have) tea", "pb"],
+      ["Sen ingliz tilini o'rganasan.", "You (learn|study) English", "pb"],
+      ["U sut ichadi.", "(He|She) drinks milk", "p3"],
+      ["Biz maktabga boramiz.", "We go to school", "pb"],
+      ["Ular futbol o'ynaydi.", "They play (football|soccer)", "pb"],
+      ["Opam kitob o'qiydi.", `My ${SIS} reads (books|a book)`, "p3"],
+      ["Otam ishlaydi.", `My ${DAD} works`, "p3"],
+      ["Biz ingliz tilida gapiramiz.", "We speak English", "pb"],
+      ["U musiqa tinglaydi.", "(He|She) listens to music", "p3"],
+      ["Ular uyda o'ynaydi.", "They play at home", "pb"],
+      ["Men olma yeyman.", "I eat (apples|an apple)", "pb"],
+      ["Dadam mashina haydaydi.", `My ${DAD} drives a car`, "p3"],
+      ["Onam ovqat pishiradi.", `My ${MOM} cooks (food|dinner|a meal|meals)`, "p3"],
+      ["Ular televizor ko'radi.", "They watch (TV|television)", "pb"],
+      ["Opam ingliz tilini o'rganadi.", `My ${SIS} (learns|studies) English`, "p3"],
+      ["Sen basseynda suzasan.", "You swim in the (swimming |)pool", "pb"],
+      ["Biz parkda yuguramiz.", "We run in the park", "pb"],
+      ["Aziz do'konda ishlaydi.", "Aziz works (in|at) a (shop|store)", "p3"],
+      ["Biz suv ichamiz.", "We drink water", "pb"]
+    ],
+    n: [
+      ["Men choy ichmayman.", "I do not (drink|have) tea", "nb"],
+      ["U sut ichmaydi.", "(He|She) does not drink milk", "n3"],
+      ["Biz maktabga bormaymiz.", "We do not go to school", "nb"],
+      ["Ular futbol o'ynamaydi.", "They do not play (football|soccer)", "nb"],
+      ["Sen kitob o'qimaysan.", "You do not read (books|a book)", "nb"],
+      ["Opam qahva ichmaydi.", `My ${SIS} does not drink coffee`, "n3"],
+      ["Otam televizor ko'rmaydi.", `My ${DAD} does not watch (TV|television)`, "n3"],
+      ["Men go'sht yemayman.", "I do not eat meat", "nb"],
+      ["Biz rasm chizmaymiz.", "We do not draw (pictures|a picture)", "nb"],
+      ["U musiqa tinglamaydi.", "(He|She) does not listen to music", "n3"],
+      ["Ular ingliz tilida gapirmaydi.", "They do not speak English", "nb"],
+      ["Onam bugun ishlamaydi.", T(`My ${MOM} does not work`, "today"), "n3"],
+      ["Sen basseynda suzmaysan.", "You do not swim in the (swimming |)pool", "nb"],
+      ["Aziz do'konda ishlamaydi.", "Aziz does not work (in|at) a (shop|store)", "n3"],
+      ["Biz sabzi yemaymiz.", "We do not eat carrots", "nb"]
+    ],
+    i: [
+      ["Sen choy ichasanmi?", "Do you (drink|have) tea", "qb"],
+      ["U sut ichadimi?", "Does (he|she) drink milk", "q3"],
+      ["Sen maktabga borasanmi?", "Do you go to school", "qb"],
+      ["Ular futbol o'ynaydimi?", "Do they play (football|soccer)", "qb"],
+      ["Opang kitob o'qiydimi?", `Does your ${SIS} read (books|a book)`, "q3"],
+      ["Otang ishlaydimi?", `Does your ${DAD} work`, "q3"],
+      ["Siz ingliz tilini o'rganasizmi?", "Do you (learn|study) English", "qb"],
+      ["Ular televizor ko'radimi?", "Do they watch (TV|television)", "qb"],
+      ["U musiqa tinglaydimi?", "Does (he|she) listen to music", "q3"],
+      ["Onang ovqat pishiradimi?", `Does your ${MOM} cook (food|dinner|a meal|meals)`, "q3"],
+      ["Ular basseynda suzadimi?", "Do they swim in the (swimming |)pool", "qb"],
+      ["Aziz do'konda ishlaydimi?", "Does Aziz work (in|at) a (shop|store)", "q3"],
+      ["Sen go'sht yeysanmi?", "Do you eat meat", "qb"],
+      ["Siz ingliz tilida gapirasizmi?", "Do you speak English", "qb"]
+    ]
+  },
+
+  avg: {
+    p: [
+      ["Men har ertalab choy ichaman.", T("I drink tea", "(every morning|in the morning)"), "pb time"],
+      ["Biz dushanba kunlari ingliz tili darsiga boramiz.", T("We go to (the |)English (class|lesson|lessons|classes)", "(on Mondays|every Monday)"), "pb time"],
+      ["U odatda soat yettida turadi.", A("(He|She)", "usually", "(gets up|wakes up) at (7|seven) [o'clock]"), "p3 adv"],
+      ["Opam har kuni universitetga boradi.", T(`My ${SIS} goes to (the |)(university|college)`, "every day"), "p3 time"],
+      ["Biz kechqurun televizor ko'ramiz.", T("We watch (TV|television)", "(in the evening|every evening)"), "pb time"],
+      ["Ular dam olish kunlari futbol o'ynaydi.", T("They play (football|soccer)", WEEKEND), "pb time"],
+      ["Dadam ishdan keyin gazeta o'qiydi.", T(`My ${DAD} reads (a newspaper|the newspaper|newspapers)`, "after work"), "p3 time"],
+      ["Onam har kuni bozorga boradi.", T(`My ${MOM} goes to the (market|bazaar)`, "every day"), "p3 time"],
+      ["Men ba'zan do'stlarim bilan kinoga boraman.", A("I", "sometimes", "go to the (cinema|movies|movie theater|movie theatre) with my friends"), "pb adv"],
+      ["Ustozimiz bizga har dars uy vazifasi beradi.", T("Our teacher gives us homework", "(every lesson|every class|in every lesson|in every class)"), "p3 time"],
+      ["Aziz va Madina maktabda ingliz tilini o'rganadi.", "Aziz and Madina (learn|study) English (at|in) school", "pb"],
+      ["Biz yozda dengizga boramiz.", T("We go to the (sea|seaside|beach)", "in (the |)summer"), "pb time"]
+    ],
+    n: [
+      ["Men ertalab qahva ichmayman.", T("I do not drink coffee", "(in the morning|in the mornings)"), "nb time"],
+      ["U yakshanba kunlari ishlamaydi.", T("(He|She) does not work", "(on Sundays|on Sunday)"), "n3 time"],
+      ["Biz kechqurun televizor ko'rmaymiz.", T("We do not watch (TV|television)", "in the evening"), "nb time"],
+      ["Ular yakshanba kuni maktabga bormaydi.", T("They do not go to school", "(on Sundays|on Sunday)"), "nb time"],
+      ["Opam kechqurun go'sht yemaydi.", T(`My ${SIS} does not eat meat`, "in the evening"), "n3 time"],
+      ["Dadam ishdan keyin gazeta o'qimaydi.", T(`My ${DAD} does not read (a newspaper|the newspaper|newspapers)`, "after work"), "n3 time"],
+      ["Men sizning ismingizni bilmayman.", "I do not know your name", "nb"],
+      ["Ustozimiz bugun dars bermaydi.", T("Our teacher does not (teach|give lessons|give a lesson|give classes|give a class)", "today"), "n3 time"],
+      ["Aziz va Madina uyda ingliz tilida gapirmaydi.", T("Aziz and Madina do not speak English", "at home"), "nb"],
+      ["Onam kechqurun ovqat pishirmaydi.", T(`My ${MOM} does not cook (dinner|food|a meal|meals|)`, "in the evening"), "n3 time"],
+      ["Sen yozda maktabga bormaysan.", T("You do not go to school", "in (the |)summer"), "nb time"],
+      ["Biz tushlikda go'sht yemaymiz.", T("We do not eat meat", "(at|for) lunch"), "nb time"]
+    ],
+    i: [
+      ["Sen har ertalab choy ichasanmi?", T("Do you drink tea", "(every morning|in the morning)"), "qb time"],
+      ["U yakshanba kunlari ishlaydimi?", T("Does (he|she) work", "(on Sundays|on Sunday)"), "q3 time"],
+      ["Ular dam olish kunlari futbol o'ynaydimi?", T("Do they play (football|soccer)", WEEKEND), "qb time"],
+      ["Onang kechqurun ovqat pishiradimi?", T(`Does your ${MOM} cook (dinner|food|a meal|meals|)`, "in the evening"), "q3 time"],
+      ["Siz kitoblarni kutubxonadan olasizmi?", "Do you (get|take|borrow) (books|the books) from the library", "qb"],
+      ["Ustozingiz sizga uy vazifasi beradimi?", "Does your teacher give you homework", "q3"],
+      ["Aziz va Madina maktabda ingliz tilini o'rganadimi?", "Do Aziz and Madina (learn|study) English (at|in) school", "qb"],
+      ["Sen qayerda ishlaysan?", "Where do you work", "wh"],
+      ["U nima ichadi?", "What does (he|she) drink", "wh"],
+      ["Ular qayerda yashaydi?", "Where do they live", "wh"],
+      ["Opangiz qayerda o'qiydi?", `Where does your ${SIS} study`, "wh"],
+      ["Onangiz nima pishiradi?", `What does your ${MOM} cook`, "wh"],
+      ["Ular qayerga boradi?", "Where do they go", "wh"]
+    ]
+  },
+
+  hard: {
+    p: [
+      ["Mening do'stim Samarqandda yashaydi va universitetda ishlaydi.", "My friend lives in Samar(kand|qand) and (he |she |)works (at|in) (a|the) university", "p3"],
+      ["Biz odatda soat sakkizda kechki ovqat yeymiz.", A("We", "usually", "(have|eat) dinner at (8|eight) [o'clock]"), "pb adv"],
+      ["Opam ingliz tili o'qituvchisi bo'lib ishlaydi.", `My ${SIS} works as an English teacher`, "p3"],
+      ["Dadam hamisha ishga avtobusda boradi.", `My ${DAD} always (goes to work by bus|takes the bus to work|goes to work on the bus)`, "p3 adv"],
+      ["Ular tez-tez bobosining uyiga boradi.", A("They", "often", "go to their (grandfather's|grandpa's|grandad's) (house|home)"), "pb adv"],
+      ["Madina har yakshanba oilasi bilan parkda sayr qiladi.", T("Madina (walks|goes for a walk|goes walking) in the park with her family", "(every Sunday|on Sundays)"), "p3 time"],
+      ["Maktabimiz soat sakkizda boshlanadi.", "Our school (starts|begins) at (8|eight) [o'clock]", "p3"],
+      ["Menga ingliz tili juda yoqadi.", "I (like English (very much|a lot)|really like English|love English)", "pb"],
+      ["Mening ikkita akam bor.", `I have [got] (two|2) ${BRO}s`, "pb have"],
+      ["Aziz kuniga uch marta ovqatlanadi.", "Aziz (eats (three|3) times a day|has (three|3) meals a day|eats (three|3) meals a day)", "p3 time"],
+      ["Mening ota-onam qishloqda yashaydi.", "My parents live in (a village|the village|the countryside)", "pb"],
+      ["Doktor kasalxonada ishlaydi va bemorlarga yordam beradi.", "The doctor works (in|at) (a|the) hospital and helps (the |)patients", "p3"],
+      ["Qushlar qishda issiq mamlakatlarga uchib ketadi.", T("Birds (fly|fly away) to (warm|hot) (countries|places)", "in (the |)winter"), "pb time"],
+      ["Quyosh sharqdan chiqadi.", "The sun rises (in|from) the east", "p3"],
+      ["Ukam maktabdan keyin kompyuterda o'ynaydi.", T("My (younger |little |)brother plays (on the computer|computer games|games on the computer)", "after school"), "p3 time"],
+      ["Mening ismim Aziz.", "My name is Aziz", "be"],
+      ["Men Toshkentdanman.", "I am from Tashkent", "be"],
+      ["Ular mening do'stlarim.", "They are my friends", "be"]
+    ],
+    n: [
+      ["U hech qachon go'sht yemaydi.", "(He|She) (never eats meat|does not eat meat)", "n3 adv"],
+      ["Men darsga hech qachon kechikmayman.", "I (never come|never arrive|am never) late (to|for) (class|the lesson|lessons|lesson|school)", "nb adv"],
+      ["Ota-onam shaharda yashamaydi.", "My parents do not live in (the city|a city|the town|a town)", "nb"],
+      ["Opam soat sakkizdan keyin ishlamaydi.", T(`My ${SIS} does not work`, "after (8|eight) [o'clock]"), "n3 time"],
+      ["Men dam olish kunlari erta turmayman.", T("I do not (get up|wake up) early", WEEKEND), "nb time"],
+      ["Ukam sabzavot yemaydi.", "My (younger |little |)brother does not eat vegetables", "n3"],
+      ["Ustozimiz bizga hech qachon baqirmaydi.", "Our teacher (never shouts|does not shout) at us", "n3 adv"],
+      ["Akam baliq yoqtirmaydi.", `My ${BRO} does not like fish`, "n3"],
+      ["Biz yozda maktabga bormaymiz va erta turmaymiz.", "(We do not go to school in (the |)summer|In (the |)summer we do not go to school) and (we |)do not (get up|wake up) early", "nb time"],
+      ["Bu avtobus markazga bormaydi.", "This bus does not go to the (city |town |)(centre|center)", "n3"],
+      ["Uning ukasi ingliz tilini tushunmaydi.", "(His|Her) (younger |little |)brother does not understand English", "n3"],
+      ["Men ko'p shakar ishlatmayman.", "I do not use (much|a lot of) sugar", "nb"],
+      ["Bolalar kechasi televizor ko'rmaydi.", T("The (children|kids) do not watch (TV|television)", "at night"), "nb time"],
+      ["Men talaba emasman.", "I am not a student", "be"],
+      ["U uyda emas.", "(He|She) is not at home", "be"],
+      ["Ular o'qituvchi emas.", "They are not teachers", "be"]
+    ],
+    i: [
+      ["Siz soat nechada turasiz?", "What time do you (get up|wake up)", "wh"],
+      ["Dadangiz qayerda ishlaydi?", `Where does your ${DAD} work`, "wh"],
+      ["Ular nima uchun kech yotadi?", "Why do they go to bed late", "wh"],
+      ["Siz kinoga qanchalik tez-tez borasiz?", "How often do you go to the (cinema|movies|movie theater|movie theatre)", "wh"],
+      ["Ustozingiz sizga uy vazifasini qachon beradi?", "When does your teacher give you homework", "wh"],
+      ["Bu yerda kim ingliz tilida gapiradi?", "Who (speaks English here|here speaks English)", "who"],
+      ["Siz qaysi fanni yoqtirasiz?", "(Which|What) subject do you like", "wh"],
+      ["Madina qayerda yashaydi?", "Where does Madina live", "wh"],
+      ["Ular qachon dam oladi?", "When do they (rest|relax|have a rest)", "wh"],
+      ["Siz maktabga qanday borasiz?", "How do you (go|get) to school", "wh"],
+      ["Opangiz nimani yoqtiradi?", `What does your ${SIS} like`, "wh"],
+      ["Dars soat nechada boshlanadi?", "What time does the (lesson|class) (start|begin)", "wh"],
+      ["Siz qayerda yashaysiz?", "Where do you live", "wh"],
+      ["Siz talabamisiz?", "Are you a student", "be"],
+      ["U shifokormi?", "Is (he|she) a doctor", "be"],
+      ["Ular sizning do'stlaringizmi?", "Are they your friends", "be"]
+    ]
+  }
+};
+
+const ITEMS = [];
+Object.keys(BANK).forEach(level => {
+  ['p', 'n', 'i'].forEach(type => {
+    BANK[level][type].forEach((row, k) => {
+      ITEMS.push({
+        id: `${level}-${type}-${String(k + 1).padStart(2, '0')}`,
+        level, type, uz: row[0], pat: row[1], tags: row[2].split(' ')
+      });
+    });
+  });
+});
+
+
+/* ======================================================================
+   ENGINE: expands patterns, checks answers, diagnoses grammar mistakes
+   ====================================================================== */
+const BE = new Set(['am', 'is', 'are']);
+const DOS = new Set(['do', 'does']);
+const HAVES = new Set(['have', 'has']);
+const ARTS = new Set(['a', 'an', 'the']);
+const PREPS = new Set(['at', 'on', 'in', 'to', 'from', 'with', 'of', 'for', 'by', 'after', 'before', 'into', 'as']);
+const PRON = new Set(['i', 'you', 'he', 'she', 'it', 'we', 'they']);
+const FREQ = new Set(['always', 'usually', 'often', 'sometimes', 'never', 'rarely']);
+const WH = new Set(['what', 'where', 'when', 'why', 'how', 'who', 'which', 'whose']);
+const DET = new Set(['your', 'the', 'my', 'our', 'his', 'her', 'their', 'this', 'these']);
+const SING = new Set(['he', 'she', 'it', 'aziz', 'madina', 'mother', 'father', 'dad', 'mom', 'mum', 'sister', 'brother',
+  'teacher', 'friend', 'doctor', 'school', 'bus', 'sun', 'family', 'lesson', 'class']);
+const PLUR = new Set(['i', 'you', 'we', 'they', 'parents', 'children', 'kids', 'birds', 'friends', 'students']);
+const VERBS = new Set(['drink', 'have', 'learn', 'study', 'go', 'play', 'read', 'work', 'draw', 'speak', 'listen', 'watch',
+  'eat', 'drive', 'cook', 'swim', 'run', 'get', 'wake', 'live', 'start', 'begin', 'like', 'love', 'know', 'give', 'teach',
+  'shout', 'understand', 'use', 'take', 'borrow', 'come', 'arrive', 'help', 'fly', 'rise', 'rest', 'relax', 'sleep', 'walk',
+  'do', 'say', 'buy', 'open', 'close', 'finish', 'write', 'sit', 'stand', 'sing', 'dance']);
+const IRREG_PAST = ['went', 'ate', 'drank', 'saw', 'got', 'had', 'did', 'gave', 'took', 'came', 'spoke', 'ran', 'swam', 'drove',
+  'wrote', 'said', 'knew', 'taught', 'understood', 'flew', 'rose', 'woke', 'began', 'was', 'were', 'been', 'will', 'going'];
+
+function sForm(v) {
+  if (v === 'have') return 'has';
+  if (/(s|sh|ch|x|z|o)$/.test(v)) return v + 'es';
+  if (/[^aeiou]y$/.test(v)) return v.slice(0, -1) + 'ies';
+  return v + 's';
+}
+const VERB_S = new Map();
+VERBS.forEach(v => VERB_S.set(sForm(v), v));
+const PAST = new Set(IRREG_PAST);
+VERBS.forEach(v => PAST.add(/e$/.test(v) ? v + 'd' : /[^aeiou]y$/.test(v) ? v.slice(0, -1) + 'ied' : v + 'ed'));
+
+const PROPER = {
+  i: 'I', aziz: 'Aziz', madina: 'Madina', english: 'English', samarkand: 'Samarkand', samarqand: 'Samarqand',
+  tashkent: 'Tashkent', tv: 'TV', monday: 'Monday', mondays: 'Mondays', sunday: 'Sunday', sundays: 'Sundays',
+  saturdays: 'Saturdays'
+};
+
+/* ---------- pattern expansion ---------- */
+function expandPattern(spec) {
+  let pos = 0;
+  function seq() {
+    let out = [''];
+    while (pos < spec.length) {
+      const c = spec[pos];
+      if (c === ')' || c === ']' || c === '|') break;
+      if (c === '(' || c === '[') {
+        pos++;
+        const alts = [];
+        for (;;) {
+          alts.push(...seq());
+          if (spec[pos] === '|') { pos++; continue; }
+          break;
+        }
+        pos++;
+        if (c === '[') alts.push('');
+        const next = [];
+        for (const o of out) for (const a of alts) next.push(o + a);
+        out = next;
+      } else {
+        let j = pos;
+        while (j < spec.length && !'()[]|'.includes(spec[j])) j++;
+        const lit = spec.slice(pos, j);
+        pos = j;
+        out = out.map(o => o + lit);
+      }
+    }
+    return out;
+  }
+  const seen = new Set();
+  const res = [];
+  seq().forEach(s => {
+    const t = s.replace(/\s+/g, ' ').trim();
+    if (t && !seen.has(t)) { seen.add(t); res.push(t); }
+  });
+  return res;
+}
+
+/* ---------- normalising answers ---------- */
+function norm(s) {
+  s = String(s || '').toLowerCase().replace(/[‘’ʼ`´]/g, "'");
+  s = s.replace(/\b(he|she|it)'s got\b/g, '$1 has got');
+  s = s.replace(/\bdon't\b/g, 'do not').replace(/\bdoesn't\b/g, 'does not')
+    .replace(/\bisn't\b/g, 'is not').replace(/\baren't\b/g, 'are not')
+    .replace(/\bi'm\b/g, 'i am').replace(/\b(you|we|they)'re\b/g, '$1 are')
+    .replace(/\b(he|she|it|that|there|here|what|where|who|how|when|why)'s\b/g, '$1 is')
+    .replace(/\b(i|you|we|they)'ve\b/g, '$1 have');
+  s = s.replace(/\bo ?clock\b/g, "o'clock").replace(/\b(\d{1,2}):00\b/g, '$1');
+  s = s.replace(/[.,!?;:"“”()]/g, ' ');
+  return s.replace(/\s+/g, ' ').trim();
+}
+
+function expansions(item) {
+  if (item._E) return item._E;
+  const list = [];
+  const set = new Set();
+  expandPattern(item.pat).forEach(raw => {
+    const n = norm(raw);
+    if (!set.has(n)) { set.add(n); list.push({ raw, norm: n, toks: n.split(' ') }); }
+  });
+  item._E = { list, set };
+  return item._E;
+}
+
+/* ---------- display helpers ---------- */
+function pretty(raw, type) {
+  let s = raw.replace(/\bdoes not\b/gi, "doesn't").replace(/\bdo not\b/gi, "don't")
+    .replace(/\bis not\b/gi, "isn't").replace(/\bare not\b/gi, "aren't");
+  const toks = s.split(' ').map(w => {
+    const l = w.toLowerCase();
+    return PROPER[l] || l;
+  });
+  toks[0] = toks[0].charAt(0).toUpperCase() + toks[0].slice(1);
+  return toks.join(' ') + (type === 'i' ? '?' : '.');
+}
+function canon(item) { return pretty(expansions(item).list[0].raw, item.type); }
+
+function alternatives(item, k) {
+  const L = expansions(item).list;
+  if (L.length < 2) return [];
+  const chosen = [L[0]];
+  const out = [];
+  for (let n = 0; n < k; n++) {
+    let best = null, bd = -1;
+    for (let i = 1; i < L.length; i++) {
+      if (chosen.includes(L[i])) continue;
+      let md = 1e9;
+      chosen.forEach(c => { md = Math.min(md, align(L[i].toks, c.toks).d); });
+      if (md > bd) { bd = md; best = L[i]; }
+    }
+    if (!best || bd < 1) break;
+    chosen.push(best);
+    out.push(pretty(best.raw, item.type));
+  }
+  return out;
+}
+
+/* ---------- distance helpers ---------- */
+function ed(a, b) {
+  const m = a.length, n = b.length;
+  if (!m) return n;
+  if (!n) return m;
+  let prev = Array.from({ length: n + 1 }, (_, j) => j);
+  for (let i = 1; i <= m; i++) {
+    const cur = [i];
+    for (let j = 1; j <= n; j++) {
+      cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    }
+    prev = cur;
+  }
+  return prev[n];
+}
+function isSV(a, b) {
+  if (a === b || Math.min(a.length, b.length) < 2) return false;
+  return a === sForm(b) || b === sForm(a);
+}
+function tcost(a, b) {
+  if (a === b) return 0;
+  if (isSV(a, b)) return 0.45;
+  if ((BE.has(a) && BE.has(b)) || (DOS.has(a) && DOS.has(b)) || (HAVES.has(a) && HAVES.has(b)) || (ARTS.has(a) && ARTS.has(b))) return 0.45;
+  if (a.length > 3 && b.length > 3 && ed(a, b) <= 2) return 0.6;
+  return 1;
+}
+function align(a, b) {
+  const n = a.length, m = b.length;
+  const D = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(0));
+  const P = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(''));
+  for (let i = 1; i <= n; i++) { D[i][0] = i; P[i][0] = 'e'; }
+  for (let j = 1; j <= m; j++) { D[0][j] = j; P[0][j] = 'm'; }
+  for (let i = 1; i <= n; i++) {
+    for (let j = 1; j <= m; j++) {
+      let best = D[i - 1][j - 1] + tcost(a[i - 1], b[j - 1]), p = 's';
+      if (D[i - 1][j] + 1 < best) { best = D[i - 1][j] + 1; p = 'e'; }
+      if (D[i][j - 1] + 1 < best) { best = D[i][j - 1] + 1; p = 'm'; }
+      D[i][j] = best; P[i][j] = p;
+    }
+  }
+  const ops = [];
+  let i = n, j = m;
+  while (i > 0 || j > 0) {
+    const p = P[i][j];
+    if (p === 's') { if (a[i - 1] !== b[j - 1]) ops.push({ t: 'sub', a: a[i - 1], b: b[j - 1], i: i - 1, j: j - 1 }); i--; j--; }
+    else if (p === 'e') { ops.push({ t: 'ext', a: a[i - 1], i: i - 1 }); i--; }
+    else { ops.push({ t: 'mis', b: b[j - 1], j: j - 1 }); j--; }
+  }
+  return { d: D[n][m], ops: ops.reverse() };
+}
+
+/* ---------- vocabulary (for typo repair) ---------- */
+let _vocab = null, _vocabArr = null;
+function VOCAB() {
+  if (_vocab) return _vocab;
+  _vocab = new Set(['do', 'does', 'not', 'is', 'are', 'am', 'a', 'an', 'the']);
+  ITEMS.forEach(it => expansions(it).list.forEach(v => v.toks.forEach(t => {
+    _vocab.add(t);
+    if (t.length > 2) {
+      _vocab.add(sForm(t));
+      if (t.endsWith('ies')) _vocab.add(t.slice(0, -3) + 'y');
+      else if (t.endsWith('es')) _vocab.add(t.slice(0, -2));
+      if (t.endsWith('s')) _vocab.add(t.slice(0, -1));
+    }
+  })));
+  _vocabArr = [..._vocab];
+  return _vocab;
+}
+function repairTypos(n) {
+  const V = VOCAB();
+  const fixes = [];
+  const out = n.split(' ').map(t => {
+    if (V.has(t) || /^\d+$/.test(t) || t.length < 4) return t;
+    const lim = t.length >= 8 ? 2 : 1;
+    let best = null, bd = 9;
+    for (const w of _vocabArr) {
+      if (Math.abs(w.length - t.length) > lim) continue;
+      const d = ed(t, w);
+      if (d <= lim && d < bd) { bd = d; best = w; }
+    }
+    if (best) { fixes.push([t, best]); return best; }
+    return t;
+  });
+  return { text: out.join(' '), fixes };
+}
+
+/* ---------- issue catalogue ---------- */
+const ISSUES = {
+  empty: { title: 'Blank or timed-out answers', fix: 'Type something even if you are not sure. Start with the subject and the verb, then add the rest.' },
+  type_mismatch: { title: 'Positive, negative or question?', fix: 'Look at the Uzbek ending first: -ma- is a negative, -mi is a question, otherwise it is a positive sentence.', ex: 'Men choy ichmayman = I do not drink tea.' },
+  q_aux: { title: 'Making questions', fix: 'Start with Do or Does: Do you like tea? Does he like tea? With a question word: Where does he work?', ex: 'You like tea? → Do you like tea?' },
+  q_order: { title: 'Question word order', fix: 'Order: question word + do/does + subject + base verb.', ex: 'Do like you tea? → Do you like tea?' },
+  neg_aux: { title: 'Making negatives', fix: 'Put do not (don’t) or does not (doesn’t) before the base verb.', ex: 'He not like tea → He does not like tea.' },
+  do_does: { title: 'do or does', fix: 'I, you, we, they take do. He, she, it (and one person) take does.', ex: 'She do not work → She does not work.' },
+  s_after_aux: { title: 'No -s after do / does', fix: 'After do, does, don’t and doesn’t the verb stays in its base form.', ex: 'Does he works? → Does he work?' },
+  s3: { title: 'The -s with he / she / it', fix: 'In positive sentences add -s or -es to the verb with he, she, it and one person or thing.', ex: 'He work at a bank → He works at a bank.' },
+  s_extra: { title: 'No -s with I / you / we / they', fix: 'With I, you, we, they and plural nouns the verb keeps its base form.', ex: 'They plays football → They play football.' },
+  have_has: { title: 'have or has', fix: 'Use has with he, she, it. Use have with I, you, we, they.', ex: 'She have a car → She has a car.' },
+  be_agree: { title: 'am / is / are', fix: 'I am, he/she/it is, you/we/they are.', ex: 'They is my friends → They are my friends.' },
+  be_misuse: { title: 'am / is / are with other verbs', fix: 'Do not mix am/is/are with another verb or with do/does: I work, not I am work.', ex: 'Do you are a student? → Are you a student?' },
+  be_missing: { title: 'Forgetting am / is / are', fix: 'English needs am, is or are before a noun or adjective: I am a student.', ex: 'I student → I am a student.' },
+  tense: { title: 'Present simple only', fix: 'Use the present simple: no -ing, no past forms, no will.', ex: 'He is drinking tea → He drinks tea.' },
+  article: { title: 'a / an / the', fix: 'Singular countable nouns usually need a, an or the. Use a before consonant sounds and an before vowel sounds.', ex: 'He works in shop → He works in a shop.' },
+  prep: { title: 'at / on / in / to', fix: 'at + clock time, on + days, in + the morning/summer, go to + place.', ex: 'We go on school → We go to school.' },
+  pronoun: { title: 'Pronouns', fix: 'I, you, he, she, we, they: check who is doing the action in the Uzbek sentence.' },
+  word_order: { title: 'Word order', fix: 'Statements follow subject + verb + object + place + time.', ex: 'Tea I drink → I drink tea.' },
+  plural: { title: 'One or many?', fix: 'Check singular and plural nouns: a book, books.' },
+  aux_extra: { title: 'Extra do / does', fix: 'Positive statements do not need do or does.', ex: 'I do drink tea → I drink tea.' },
+  spelling: { title: 'Spelling', fix: 'Check the spelling of the underlined words before you lock in.' },
+  vocab: { title: 'Word choice', fix: 'A word does not match the Uzbek sentence. Check the verb and the nouns.' },
+  missing: { title: 'Missing details', fix: 'Translate every part of the Uzbek sentence: time words, places and objects too.' },
+  extra: { title: 'Extra words', fix: 'Only translate what is in the Uzbek sentence.' }
+};
+const ISSUE_ORDER = ['empty', 'type_mismatch', 'q_aux', 'neg_aux', 'be_missing', 'be_misuse', 'be_agree', 'do_does', 's_after_aux', 's3', 's_extra',
+  'have_has', 'q_order', 'tense', 'aux_extra', 'article', 'prep', 'pronoun', 'word_order', 'plural', 'spelling', 'vocab', 'missing', 'extra'];
+const SOFT = new Set(['vocab', 'missing', 'extra']);
+
+/* ---------- sentence type + generic grammar rules ---------- */
+function typeOf(st) {
+  if (WH.has(st[0]) || DOS.has(st[0]) || BE.has(st[0])) return 'i';
+  if (st.includes('not') || st.includes('never') || st.includes('no')) return 'n';
+  return 'p';
+}
+
+function generic(st, item) {
+  const out = new Set();
+  const n = st.length;
+  const auxBefore = i => st.slice(0, i).some(w => DOS.has(w));
+  // subject + verb agreement (statements)
+  for (let i = 0; i < n - 1; i++) {
+    if (auxBefore(i)) continue;
+    const w = st[i];
+    let j = i + 1;
+    while (j < n && FREQ.has(st[j])) j++;
+    const v = st[j];
+    if (!v) continue;
+    const sing = SING.has(w) || (w === 'who' && item.tags.includes('who'));
+    const plur = PLUR.has(w);
+    if (sing) {
+      if (v === 'have') out.add('have_has');
+      else if (v === 'do') out.add('do_does');
+      else if (VERBS.has(v) && !VERB_S.has(v)) out.add('s3');
+    } else if (plur) {
+      if (v === 'has') out.add('have_has');
+      else if (v === 'does') out.add('do_does');
+      else if (VERB_S.has(v)) out.add('s_extra');
+    }
+  }
+  // do / does
+  for (let i = 0; i < n; i++) {
+    if (!DOS.has(st[i])) continue;
+    for (let j = i + 1; j < n; j++) {
+      if (VERB_S.has(st[j]) || st[j] === 'has') { out.add('s_after_aux'); break; }
+    }
+    const prev = st[i - 1];
+    let m = i + 1;
+    while (DET.has(st[m])) m++;
+    const subj = st[m];
+    const plural = st[m + 1] === 'and';
+    if (st[i] === 'does') {
+      if (prev && PLUR.has(prev)) out.add('do_does');
+      else if (subj && PLUR.has(subj) && !plural) out.add('do_does');
+    } else {
+      if (prev && SING.has(prev)) out.add('do_does');
+      else if (subj && SING.has(subj) && !plural) out.add('do_does');
+    }
+    for (let j = i + 1; j < Math.min(n, i + 4); j++) if (BE.has(st[j])) { out.add('be_misuse'); break; }
+  }
+  // am / is / are
+  const want = w => (w === 'i' ? 'am' : (SING.has(w) ? 'is' : (PLUR.has(w) ? 'are' : null)));
+  for (let i = 0; i < n; i++) {
+    if (!BE.has(st[i])) continue;
+    let subj = null;
+    if (i > 0 && !WH.has(st[i - 1])) subj = st[i - 1];
+    else {
+      let m = i + 1;
+      while (DET.has(st[m])) m++;
+      subj = st[m];
+    }
+    const w = subj && want(subj);
+    if (w && w !== st[i]) out.add('be_agree');
+    let k = i + 1;
+    if (st[k] === 'not') k++;
+    const nx = st[k];
+    if (nx && (VERBS.has(nx) || VERB_S.has(nx))) out.add('be_misuse');
+    if (nx && /ing$/.test(nx) && nx.length > 4) out.add('tense');
+  }
+  // negatives without an auxiliary
+  for (let i = 1; i < n; i++) {
+    if (st[i] === 'not' && !DOS.has(st[i - 1]) && !BE.has(st[i - 1])) out.add('neg_aux');
+    if (st[i] === 'no' && (VERBS.has(st[i + 1]) || VERB_S.has(st[i + 1]))) out.add('neg_aux');
+  }
+  // questions
+  if (item.type === 'i') {
+    const f = st[0];
+    if (WH.has(f)) {
+      if (f !== 'who') {
+        let k = -1;
+        for (let i = 1; i < Math.min(n, 5); i++) if (DOS.has(st[i]) || BE.has(st[i])) { k = i; break; }
+        if (k < 0) out.add('q_aux');
+        else {
+          let m = k + 1;
+          while (DET.has(st[m])) m++;
+          if (VERBS.has(st[k + 1]) || VERB_S.has(st[k + 1])) out.add('q_order');
+        }
+      }
+    } else if ((DOS.has(f) || BE.has(f)) && (VERBS.has(st[1]) || VERB_S.has(st[1]))) out.add('q_order');
+  }
+  // tense
+  for (let i = 0; i < n; i++) if (PAST.has(st[i]) || st[i] === 'will') { out.add('tense'); break; }
+  return [...out];
+}
+
+/* ---------- classification of differences ---------- */
+function sameBag(a, b) {
+  if (a.length !== b.length) return false;
+  return a.slice().sort().join(' ') === b.slice().sort().join(' ') && a.join(' ') !== b.join(' ');
+}
+
+function classify(ops, st, tt, item) {
+  const codes = [];
+  let unk = 0, known = 0;
+  const ttBe = tt.some(w => BE.has(w));
+  const V = VOCAB();
+  ops.forEach(o => {
+    if (o.t === 'sub') {
+      const a = o.a, b = o.b;
+      if (DOS.has(a) && DOS.has(b)) codes.push('do_does');
+      else if (BE.has(a) && BE.has(b)) codes.push('be_agree');
+      else if (HAVES.has(a) && HAVES.has(b)) codes.push('have_has');
+      else if (ARTS.has(a) && ARTS.has(b)) codes.push('article');
+      else if (isSV(a, b)) {
+        if (VERB_S.has(a) || VERB_S.has(b)) {
+          if (VERB_S.has(a)) codes.push(st.slice(0, o.i).some(w => DOS.has(w)) ? 's_after_aux' : 's_extra');
+          else codes.push('s3');
+        } else codes.push('plural');
+      }
+      else if (PREPS.has(a) && PREPS.has(b)) codes.push('prep');
+      else if (PRON.has(a) && PRON.has(b)) codes.push('pronoun');
+      else if (a.length > 3 && b.length > 3 && ed(a, b) <= 2) codes.push('spelling');
+      else { codes.push('vocab'); if (V.has(a)) known++; else unk++; }
+    } else if (o.t === 'mis') {
+      const b = o.b;
+      if (DOS.has(b)) codes.push(item.type === 'n' ? 'neg_aux' : item.type === 'i' ? 'q_aux' : 'missing');
+      else if (b === 'not') codes.push('type_mismatch');
+      else if (BE.has(b)) codes.push('be_missing');
+      else if (ARTS.has(b)) codes.push('article');
+      else if (PREPS.has(b)) codes.push('prep');
+      else codes.push('missing');
+    } else {
+      const a = o.a;
+      if (DOS.has(a)) codes.push(ttBe ? 'be_misuse' : 'aux_extra');
+      else if (a === 'not' || a === 'no' || a === 'never') codes.push('type_mismatch');
+      else if (BE.has(a)) codes.push('be_misuse');
+      else if (ARTS.has(a)) codes.push('article');
+      else if (PREPS.has(a)) codes.push('prep');
+      else codes.push('extra');
+    }
+  });
+  return { codes, unk, known };
+}
+
+function diagnose(item, n, E, rep) {
+  const st = n.split(' ');
+  let best = E.list[0], bd = 1e9;
+  E.list.forEach(v => { const d = align(st, v.toks).d; if (d < bd) { bd = d; best = v; } });
+  let codes = [], unk = 0, known = 0;
+  if (sameBag(st, best.toks)) codes.push('word_order');
+  else {
+    const r = classify(align(st, best.toks).ops, st, best.toks, item);
+    codes = r.codes; unk = r.unk; known = r.known;
+  }
+  if (typeOf(st) !== item.type) codes.push(item.type === 'i' ? 'q_aux' : 'type_mismatch');
+  generic(st, item).forEach(c => codes.push(c));
+  if (rep && rep.fixes.length) codes.push('spelling');
+  codes = [...new Set(codes)].sort((a, b) => ISSUE_ORDER.indexOf(a) - ISSUE_ORDER.indexOf(b));
+  let status;
+  if (codes.some(c => !SOFT.has(c))) status = 'wrong';
+  else if (codes.includes('missing')) status = 'wrong';
+  else if (codes.includes('vocab') && known > 0) status = 'wrong';
+  else status = 'review';
+  return { status, issues: codes, fixes: rep ? rep.fixes : [] };
+}
+
+/* ---------- public: check one answer ---------- */
+function check(item, answer, accepted) {
+  const n = norm(answer);
+  if (!n) return { status: 'empty', issues: ['empty'] };
+  const E = expansions(item);
+  if (E.set.has(n)) return { status: 'ok' };
+  if (accepted && accepted.includes(n)) return { status: 'ok', note: 'teacher' };
+  const rep = repairTypos(n);
+  if (rep.text !== n) {
+    if (E.set.has(rep.text)) return { status: 'ok', note: 'typo', fixes: rep.fixes };
+    if (accepted && accepted.includes(rep.text)) return { status: 'ok', note: 'teacher', fixes: rep.fixes };
+  }
+  return diagnose(item, rep.text, E, rep);
+}
+
+
+/* ======================================================================
+   APP
+   ====================================================================== */
+const $app = document.getElementById('app');
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* storage blocked */ } }
+};
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const KIND = { p: 'Positive', n: 'Negative', i: 'Question' };
+const LVCOL = { easy: 'turq', avg: 'saff', hard: 'pom' };
+
+const S = {
+  screen: 'home',
+  cfg: Object.assign({ easy: 25, avg: 35, hard: 45 }, store.get('trp_cfg', {})),
+  board: null, run: null, last: null, level: 'easy'
+};
+let timerRAF = 0, demoToken = 0;
+
+function setTheme(t) {
+  if (t) document.documentElement.dataset.theme = t;
+  else delete document.documentElement.dataset.theme;
+}
+setTheme(store.get('trp_theme', null));
+
+/* ---------- picking sentences ---------- */
+function pickFrom(level, type, usedRun) {
+  const pool = ITEMS.filter(it => it.level === level && it.type === type && !usedRun.has(it.id));
+  let used = store.get('trp_used', []);
+  let fresh = pool.filter(it => !used.includes(it.id));
+  if (!fresh.length) {
+    // this bucket is exhausted for the class: start a new round for it
+    used = used.filter(id => !pool.some(p => p.id === id));
+    store.set('trp_used', used);
+    fresh = pool;
+  }
+  return fresh[Math.floor(Math.random() * fresh.length)];
+}
+function buildRun() {
+  const plan = [];
+  const run = new Set();
+  const markUsed = [];
+  ['easy', 'avg', 'hard'].forEach(lv => {
+    let types = ['p', 'n', 'i'];
+    if (LEVELS[lv].n === 4) types.push(['p', 'n', 'i'][Math.floor(Math.random() * 3)]);
+    shuffle(types).forEach(t => {
+      const it = pickFrom(lv, t, run);
+      run.add(it.id); markUsed.push(it.id); plan.push(it);
+    });
+  });
+  store.set('trp_used', store.get('trp_used', []).concat(markUsed));
+  return plan;
+}
+function buildBoard(level) {
+  const types = shuffle(['p', 'p', 'p', 'p', 'n', 'n', 'n', 'i', 'i', 'i']);
+  const run = new Set();
+  const items = types.map(t => { const it = pickFrom0(level, t, run); run.add(it.id); return it; });
+  return { level, items, i: 0, shown: false, seen: new Set([0]), tryRes: null };
+}
+function pickFrom0(level, type, usedRun) {
+  const pool = ITEMS.filter(it => it.level === level && it.type === type && !usedRun.has(it.id));
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+/* ---------- screens ---------- */
+function go(screen) {
+  cancelAnimationFrame(timerRAF);
+  demoToken++;
+  S.screen = screen;
+  window.scrollTo(0, 0);
+  ({ home: renderHome, board: renderBoard, lobby: renderLobby, play: renderPlay, results: renderResults, lb: renderLB }[screen])();
+}
+
+/* home */
+const DEMO = [
+  ['Men choy ichmayman.', 'I do not drink tea.', 'Accepted. Negative with do not + base verb.'],
+  ['Onam har kuni bozorga boradi.', 'My mum goes to the market every day.', 'Accepted. Every day can go at the start too.'],
+  ['Sen qayerda ishlaysan?', 'Where do you work?', 'Accepted. Question word + do + subject + verb.']
+];
+function renderHome() {
+  $app.innerHTML = `
+  <section class="home">
+    <div class="hero">
+      <h1>Beat the fuse. Translate it right.</h1>
+      <p class="lede">Uzbek sentences in, English out, against the clock. Any grammatically correct answer scores, not just one model translation.</p>
+      <div class="tile flat demo"><div class="tile" style="width:100%"><div class="in">
+        <div class="uz" id="d-uz">&nbsp;</div>
+        <div class="en" id="d-en"></div>
+        <div class="verdict" id="d-v">&nbsp;</div>
+      </div></div></div>
+    </div>
+    <div class="modes">
+      <button class="tile cobalt mode board" data-act="go-board"><div class="in">
+        <h2>Board</h2><p>Teacher-led. Ten sentences per level on the big screen. No timer, reveal answers together.</p>
+      </div></button>
+      <button class="tile saff mode arena" data-act="go-lobby"><div class="in">
+        <h2>Arena</h2><p>Each student gets a different set of ten: 4 easy, 3 average, 3 hard. Timed, no hints, results at the end.</p>
+      </div></button>
+      <button class="tile mode" data-act="go-lb" style="margin-left:14px"><div class="in" style="padding:16px 22px">
+        <b style="font-family:var(--f-display);font-size:1.3rem">Leaderboard</b>
+      </div></button>
+    </div>
+  </section>`;
+  runDemo(demoToken, 0);
+}
+function runDemo(tok, k) {
+  const el = document.getElementById('d-uz');
+  if (!el || tok !== demoToken) return;
+  const [uz, en, note] = DEMO[k % DEMO.length];
+  const en$ = document.getElementById('d-en'), v$ = document.getElementById('d-v');
+  el.textContent = uz; en$.innerHTML = '<span class="caret"></span>'; v$.classList.remove('on'); v$.textContent = note;
+  if (matchMedia('(prefers-reduced-motion:reduce)').matches) {
+    en$.textContent = en; v$.classList.add('on');
+    setTimeout(() => runDemo(tok, k + 1), 4500); return;
+  }
+  let i = 0;
+  const type = () => {
+    if (tok !== demoToken) return;
+    i++;
+    en$.innerHTML = esc(en.slice(0, i)) + (i < en.length ? '<span class="caret"></span>' : '');
+    if (i < en.length) setTimeout(type, 55 + Math.random() * 60);
+    else { v$.classList.add('on'); setTimeout(() => runDemo(tok, k + 1), 3200); }
+  };
+  setTimeout(type, 700);
+}
+
+/* board */
+function levelTabs(sel, act) {
+  return `<div class="levels">${['easy', 'avg', 'hard'].map(k => `
+    <button class="tile lv ${LVCOL[k]} ${sel === k ? 'on' : ''}" data-act="${act}" data-level="${k}" aria-pressed="${sel === k}"><div class="in">
+      <b>${LEVELS[k].name}</b> <small>${LEVELS[k].uz}. ${LEVELS[k].blurb}</small></div></button>`).join('')}</div>`;
+}
+function renderBoard() {
+  if (!S.board) S.board = buildBoard(S.level);
+  const B = S.board, it = B.items[B.i];
+  let ans = '';
+  if (B.shown) {
+    const alts = alternatives(it, 3);
+    ans = `<div class="answers">
+      <div class="ans">${esc(canon(it))}</div>
+      ${alts.map(a => `<div class="ans alt">${esc(a)}</div>`).join('')}
+      <div class="tip">${esc(TIPS[it.tags[0]] || '')}</div></div>`;
+  }
+  $app.innerHTML = `
+  <div class="head"><h2>Board</h2><p class="sub">Read the Uzbek aloud, translate together, then reveal. Arrow keys move between sentences, Space reveals.</p></div>
+  ${levelTabs(B.level, 'board-level')}
+  <div class="tile stage"><div class="in">
+    <div class="pips">${B.items.map((_, k) => `<button class="pip btn-pip ${k === B.i ? 'cur' : B.seen.has(k) ? 'seen' : ''}" data-act="board-jump" data-i="${k}" aria-label="Sentence ${k + 1}">${k + 1}</button>`).join('')}</div>
+    <span class="kind ${it.type}">${KIND[it.type]}</span>
+    <div class="big-uz">${esc(it.uz)}</div>
+    ${ans}
+    <div class="actions">
+      <button class="btn" data-act="board-prev" ${B.i === 0 ? 'disabled' : ''}><span>Previous</span></button>
+      <button class="btn big" data-act="board-reveal"><span>${B.shown ? 'Hide answers' : 'Show answers'}</span></button>
+      <button class="btn" data-act="board-next" ${B.i === 9 ? 'disabled' : ''}><span>Next</span></button>
+      <button class="btn alt" data-act="board-new"><span>New ten</span></button>
+    </div>
+    <form class="try" data-form="try" autocomplete="off">
+      <input class="field" name="a" placeholder="Try a student answer to see if it is accepted" aria-label="Student answer">
+      <button class="btn alt" type="submit"><span>Check</span></button>
+      ${B.tryRes ? `<div class="tryres ${B.tryRes.cls}">${B.tryRes.msg}</div>` : ''}
+    </form>
+  </div></div>`;
+}
+function boardGo(i) {
+  const B = S.board; B.i = Math.max(0, Math.min(9, i)); B.shown = false; B.tryRes = null; B.seen.add(B.i); renderBoard();
+}
+
+/* lobby */
+function renderLobby() {
+  const players = store.get('trp_lb', []).length;
+  $app.innerHTML = `
+  <div class="head"><h2>Arena</h2><p class="sub">${players ? players + ' player' + (players === 1 ? ' has' : 's have') + ' played so far. ' : ''}Every student gets a different set, with the same mix of levels.</p></div>
+  <div class="lobby">
+    <div class="tile"><div class="in lblock">
+      <form data-form="start" autocomplete="off">
+        <label for="nm">Student name</label>
+        <input class="field" id="nm" name="nm" maxlength="24" required placeholder="Type your name">
+        <div class="actions"><button class="btn big" type="submit"><span>Start the 10</span></button></div>
+        <p class="hint">Answer with Enter. There is no feedback until the end. When the fuse runs out, the answer you typed is sent.</p>
+      </form>
+    </div></div>
+    <div class="tile"><div class="in rules">
+      <h3 style="font-size:1.5rem">Time per sentence (seconds)</h3>
+      ${['easy', 'avg', 'hard'].map(k => `
+        <div class="rule"><span class="tag" style="background:var(--${LVCOL[k]})"></span>
+          <div style="flex:1"><b>${LEVELS[k].name}</b><div class="hint" style="margin:0">${LEVELS[k].n} sentences</div></div>
+          <input type="number" min="8" max="120" value="${S.cfg[k]}" data-cfg="${k}" aria-label="${LEVELS[k].name} seconds"></div>`).join('')}
+      <p class="hint">Each set has positive, negative and question sentences at every level.</p>
+    </div></div>
+  </div>`;
+  setTimeout(() => { const n = document.getElementById('nm'); if (n) n.focus(); }, 0);
+}
+
+/* play */
+function startRun(name) {
+  S.run = { name, plan: buildRun(), idx: 0, answers: [], t0: 0, total0: Date.now() };
+  go('play');
+}
+function renderPlay() {
+  const R = S.run, it = R.plan[R.idx], lim = S.cfg[it.level];
+  R.limit = lim; R.done = false;
+  $app.innerHTML = `
+  <div class="play">
+    <div class="fuse" id="fuse">
+      <svg viewBox="0 0 120 120" role="img" aria-label="Time left">
+        <polygon class="back" points="60,8 112,60 60,112 8,60" pathLength="100" stroke-linejoin="miter"/>
+        <polygon class="run" id="ring" points="60,8 112,60 60,112 8,60" pathLength="100" stroke-dasharray="100" stroke-dashoffset="0" stroke-linejoin="miter"/>
+      </svg>
+      <div class="num" id="secs">${lim}</div>
+    </div>
+    <div>
+      <div class="pp">${R.plan.map((_, k) => `<i class="${k < R.idx ? 'done' : k === R.idx ? 'cur' : ''}"></i>`).join('')}</div>
+      <div class="q-meta"><span class="kind ${it.type}" style="margin:0;background:var(--${LVCOL[it.level]});color:${it.level === 'hard' ? '#fff' : '#06201f'}">${LEVELS[it.level].name}</span><span class="hint" style="margin:0">${esc(R.name)}, sentence ${R.idx + 1} of 10</span></div>
+      <div class="q-uz">${esc(it.uz)}</div>
+      <form data-form="answer" autocomplete="off">
+        <input class="field" id="ans" name="a" style="flex:1 1 280px" placeholder="Type the English here" aria-label="Your English translation" autocapitalize="off" spellcheck="false">
+        <button class="btn big" type="submit"><span>Lock in</span></button>
+      </form>
+    </div>
+  </div>`;
+  document.getElementById('ans').focus();
+  R.t0 = performance.now();
+  tick();
+}
+function tick() {
+  const R = S.run;
+  if (!R || S.screen !== 'play' || R.done) return;
+  const left = Math.max(0, R.limit - (performance.now() - R.t0) / 1000);
+  const frac = left / R.limit;
+  const ring = document.getElementById('ring'), secs = document.getElementById('secs'), fuse = document.getElementById('fuse');
+  if (ring) {
+    ring.style.strokeDashoffset = String(100 * (1 - frac));
+    ring.style.stroke = frac > .5 ? 'var(--turq)' : frac > .25 ? 'var(--saff)' : 'var(--pom)';
+    secs.textContent = Math.ceil(left);
+    fuse.classList.toggle('late', frac <= .25);
+  }
+  if (left <= 0) { submitAnswer(true); return; }
+  timerRAF = requestAnimationFrame(tick);
+}
+function submitAnswer() {
+  const R = S.run;
+  if (!R || R.done) return;
+  R.done = true;
+  cancelAnimationFrame(timerRAF);
+  const inp = document.getElementById('ans');
+  const secs = Math.min(R.limit, (performance.now() - R.t0) / 1000);
+  R.answers.push({ text: inp ? inp.value : '', secs });
+  R.idx++;
+  if (R.idx >= R.plan.length) finishRun(); else renderPlay();
+}
+
+/* scoring */
+function accMap() { return store.get('trp_acc', {}); }
+function finishRun() {
+  const R = S.run, acc = accMap();
+  const results = R.plan.map((it, k) => {
+    const a = R.answers[k] || { text: '', secs: 0 };
+    const res = check(it, a.text, acc[it.id] || []);
+    return { item: it, text: a.text, secs: a.secs, res, counted: res.status === 'ok' || res.status === 'review', taught: false };
+  });
+  const entry = { id: Date.now() + '-' + Math.floor(Math.random() * 1e4), name: R.name, results, time: results.reduce((s, r) => s + r.secs, 0) };
+  S.last = entry;
+  saveEntry(entry);
+  go('results');
+}
+const scoreOf = e => e.results.filter(r => r.counted).length;
+function saveEntry(e) {
+  const lb = store.get('trp_lb', []).filter(x => x.id !== e.id);
+  lb.push({ id: e.id, name: e.name, score: scoreOf(e), time: Math.round(e.time), by: summary(e), weak: topWeak(e, 3) });
+  store.set('trp_lb', lb);
+}
+function summary(e) {
+  const o = { p: [0, 0], n: [0, 0], i: [0, 0] };
+  e.results.forEach(r => { o[r.item.type][1]++; if (r.counted) o[r.item.type][0]++; });
+  return o;
+}
+function weakList(e) {
+  const c = {};
+  e.results.forEach(r => {
+    if (r.counted && r.res.status === 'ok') return;
+    if (r.counted && r.res.status === 'review') return;
+    (r.res.issues || []).forEach(k => { c[k] = (c[k] || 0) + 1; });
+  });
+  return Object.entries(c).sort((a, b) => b[1] - a[1] || ISSUE_ORDER.indexOf(a[0]) - ISSUE_ORDER.indexOf(b[0]));
+}
+const topWeak = (e, n) => weakList(e).slice(0, n).map(([k]) => ISSUES[k].title);
+
+/* results */
+function renderResults() {
+  const e = S.last, sc = scoreOf(e), W = weakList(e).slice(0, 4), by = summary(e);
+  const verdict = sc === 10 ? 'Flawless.' : sc >= 8 ? 'Strong run.' : sc >= 6 ? 'Solid, with a few slips.' : sc >= 4 ? 'Getting there.' : 'Good practice round.';
+  $app.innerHTML = `
+  <div class="head"><h2>${esc(e.name)}</h2></div>
+  <div class="tile ${sc >= 7 ? 'turq' : sc >= 4 ? 'saff' : 'pom'}"><div class="in score">
+    <div class="num" id="sc">${sc}<small>/10</small></div>
+    <div><h3 style="font-size:2rem">${verdict}</h3>
+      <div class="bytype"><span>Positive ${by.p[0]}/${by.p[1]}</span><span>Negative ${by.n[0]}/${by.n[1]}</span><span>Questions ${by.i[0]}/${by.i[1]}</span></div>
+      <p style="margin-top:10px">Total time ${Math.round(e.time)} seconds.</p></div>
+  </div></div>
+  <div class="split">
+    <div>
+      <h3 style="font-size:1.6rem;margin-bottom:12px">Weak spots</h3>
+      ${W.length ? `<ul class="weak" style="padding:0">${W.map(([k, n]) => `<li><b>${esc(ISSUES[k].title)}</b> <small>${n} sentence${n > 1 ? 's' : ''}</small>
+        <small>${esc(ISSUES[k].fix)}</small>${ISSUES[k].ex ? `<em>${esc(ISSUES[k].ex)}</em>` : ''}</li>`).join('')}</ul>`
+        : `<div class="tile"><div class="in">No grammar slips found. Keep the pace up on the hard level.</div></div>`}
+      <div class="actions"><button class="btn big" data-act="go-lobby"><span>Next student</span></button><button class="btn alt" data-act="go-lb"><span>Leaderboard</span></button></div>
+    </div>
+    <div>
+      <h3 style="font-size:1.6rem;margin-bottom:12px">Sentence by sentence</h3>
+      <div class="review">${e.results.map((r, k) => reviewRow(r, k)).join('')}</div>
+    </div>
+  </div>`;
+}
+function reviewRow(r, k) {
+  const st = r.res.status;
+  const cls = r.counted ? (st === 'ok' ? 'ok' : 'rev') : 'no';
+  let label = st === 'ok' ? (r.res.note === 'teacher' ? 'Correct (teacher accepted before)' : 'Correct')
+    : st === 'empty' ? 'No answer'
+    : st === 'review' ? (r.counted ? 'Probably fine. Teacher check' : 'Marked wrong by teacher')
+    : (r.counted ? 'Accepted by teacher' : 'Not correct');
+  const issues = st === 'ok' ? '' : (r.res.issues || []).filter(x => x !== 'empty').map(x => ISSUES[x].title).join(', ');
+  const btn = st === 'ok' ? '' : `<button class="mini" data-act="toggle" data-k="${k}">${r.counted ? 'Mark wrong' : 'Accept this answer'}</button>`;
+  return `<div class="rv ${cls}">
+    <div class="u">${k + 1}. ${esc(r.item.uz)}</div>
+    <div class="y">You: ${r.text.trim() ? esc(r.text) : '<i>no answer</i>'}</div>
+    ${st === 'ok' ? '' : `<div class="m">Model: ${esc(canon(r.item))}</div>`}
+    ${issues ? `<div class="m">${esc(issues)}</div>` : ''}
+    <div class="row"><span class="status">${label}</span>${btn}</div></div>`;
+}
+function toggleAccept(k) {
+  const e = S.last, r = e.results[k], acc = accMap();
+  const n = norm(r.text), list = acc[r.item.id] || [];
+  r.counted = !r.counted;
+  if (r.counted && n && !list.includes(n)) list.push(n);
+  if (!r.counted) { const j = list.indexOf(n); if (j >= 0) list.splice(j, 1); }
+  acc[r.item.id] = list; store.set('trp_acc', acc);
+  saveEntry(e); renderResults();
+}
+
+/* leaderboard */
+function renderLB() {
+  const lb = store.get('trp_lb', []).slice().sort((a, b) => b.score - a.score || a.time - b.time);
+  const col = ['saff', 'turq', 'cobalt'];
+  $app.innerHTML = `
+  <div class="head"><h2>Leaderboard</h2><p class="sub">Ranked by score. Faster total time breaks ties.</p></div>
+  ${lb.length ? `<div class="board-list">${lb.map((p, k) => `
+    <div class="tile ${col[k] || ''}"><div class="in lbrow">
+      <div class="rk">${k + 1}</div>
+      <div><div class="nm">${esc(p.name)}</div>${p.weak && p.weak.length ? `<small>Work on: ${esc(p.weak.join(', '))}</small>` : ''}</div>
+      <div class="tm">${p.time}s</div><div class="sc">${p.score}/10</div></div></div>`).join('')}</div>`
+    : `<div class="tile"><div class="in empty"><h3 style="font-size:1.6rem">No scores yet</h3><p class="sub" style="margin:8px auto 18px">Run the first student through the Arena.</p><button class="btn big" data-act="go-lobby"><span>Open the Arena</span></button></div></div>`}
+  <div class="actions"><button class="btn" data-act="go-lobby"><span>Next student</span></button>
+    ${lb.length ? '<button class="btn alt" data-act="clear"><span>Start a new class</span></button>' : ''}</div>`;
+}
+
+/* ---------- events ---------- */
+document.addEventListener('click', ev => {
+  const b = ev.target.closest('[data-act]');
+  if (!b) return;
+  const a = b.dataset.act;
+  if (a === 'home') go('home');
+  else if (a === 'go-board') { if (!S.board) S.board = buildBoard(S.level); go('board'); }
+  else if (a === 'go-lobby') go('lobby');
+  else if (a === 'go-lb') go('lb');
+  else if (a === 'theme') {
+    const dark = document.documentElement.dataset.theme === 'dark' || (!document.documentElement.dataset.theme && matchMedia('(prefers-color-scheme:dark)').matches);
+    const t = dark ? 'light' : 'dark'; setTheme(t); store.set('trp_theme', t);
+  }
+  else if (a === 'board-level') { S.level = b.dataset.level; S.board = buildBoard(S.level); renderBoard(); }
+  else if (a === 'board-jump') boardGo(+b.dataset.i);
+  else if (a === 'board-prev') boardGo(S.board.i - 1);
+  else if (a === 'board-next') boardGo(S.board.i + 1);
+  else if (a === 'board-reveal') { S.board.shown = !S.board.shown; renderBoard(); }
+  else if (a === 'board-new') { S.board = buildBoard(S.board.level); renderBoard(); }
+  else if (a === 'toggle') toggleAccept(+b.dataset.k);
+  else if (a === 'clear') {
+    if (confirm('Clear the leaderboard and start a new class? Sentences will be shared out afresh.')) {
+      store.set('trp_lb', []); store.set('trp_used', []); renderLB();
+    }
+  }
+});
+document.addEventListener('submit', ev => {
+  const f = ev.target.closest('[data-form]');
+  if (!f) return;
+  ev.preventDefault();
+  const kind = f.dataset.form;
+  if (kind === 'start') {
+    const name = f.nm.value.trim();
+    if (name) startRun(name);
+  } else if (kind === 'answer') submitAnswer();
+  else if (kind === 'try') {
+    const B = S.board, it = B.items[B.i], val = f.a.value;
+    const r = check(it, val, accMap()[it.id] || []);
+    if (r.status === 'ok') B.tryRes = { cls: 'ok', msg: 'Accepted. That is a correct translation.' };
+    else if (r.status === 'empty') B.tryRes = { cls: 'no', msg: 'Type an answer first.' };
+    else if (r.status === 'review') B.tryRes = { cls: 'rev', msg: 'No grammar errors found, but it differs from the model. Teacher decides.' };
+    else B.tryRes = { cls: 'no', msg: 'Not quite: ' + esc(r.issues.map(x => ISSUES[x].title).join(', ')) + '.' };
+    renderBoard();
+    const inp = document.querySelector('.try .field'); inp.value = val; inp.focus();
+  }
+});
+document.addEventListener('change', ev => {
+  const c = ev.target.dataset && ev.target.dataset.cfg;
+  if (!c) return;
+  S.cfg[c] = Math.max(8, Math.min(120, +ev.target.value || S.cfg[c]));
+  ev.target.value = S.cfg[c]; store.set('trp_cfg', S.cfg);
+});
+document.addEventListener('keydown', ev => {
+  if (S.screen !== 'board' || /INPUT|TEXTAREA/.test(ev.target.tagName)) return;
+  if (ev.key === 'ArrowRight') boardGo(S.board.i + 1);
+  else if (ev.key === 'ArrowLeft') boardGo(S.board.i - 1);
+  else if (ev.key === ' ' && ev.target.tagName !== 'BUTTON') { ev.preventDefault(); S.board.shown = !S.board.shown; renderBoard(); }
+});
+
+go('home');
+</script>
+</body>
+</html>
